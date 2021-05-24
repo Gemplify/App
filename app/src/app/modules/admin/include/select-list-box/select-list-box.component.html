@@ -1,0 +1,28 @@
+<div class="row">
+  <div class="col-12">
+    <div class="input-group">
+      <input [disabled]="disabled" [(ngModel)]="stringsearch" (keyup)="search($event)" type="text" class="form-control" placeholder="Enter here ..">
+    </div>
+    <div class="select-content" *ngIf="data.length > 0 || load">
+      <div class="row">
+        <div class="col-12">
+          <div class="row list-items">
+            <fa-icon [icon]="faCircleNotch" class="loader fa-spin" *ngIf="load"></fa-icon>
+            <div class="col-12 scrollview">
+              <div class="row ">
+                <ng-container *ngFor="let p of data" >
+                  <div class="col-12 item" (click)="choose(p)">
+                    <div class="row">
+                      <div class="col item-name">{{p[name[0]]}}</div>
+                    </div>
+                  </div>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,75 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import "assets/css/theme.scss";
+
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+.ck.ck-balloon-panel{
+  z-index:99999 !important;
+}
+
+
+.title-principal{
+  a {
+    color: #000000;
+    &:hover {
+      text-decoration: underline;
+      color: #000000;
+    }
+  }
+}
+
+.color-blue-primary{
+  color: #170560;
+}
+
+.cdk-global-overlay-wrapper, .cdk-overlay-container {
+  z-index: 9999!important;
+}
+
+// UTILS
+.tooltip{
+  z-index: 2151 !important;
+}
+
+.pointer{
+  cursor: pointer;
+}
+
+.ck-editor__editable_inline {
+  min-height: 200px;
+}
+
+.fc-blue-session{
+  color:#502f88;
+}
+
+.bk-blue-session{
+  background-color:#502f88;
+}
+
+
+#cardsArea{
+  mat-checkbox{
+    .mat-checkbox-inner-container{
+      height: 1vw;
+      width: 1vw;
+      max-height: 16px;
+      max-width: 16px;
+    }
+  }
+}
+
+#ModalAnswer{
+  img{
+    width:100%;
+  }
+}
+
+.break-word{
+  word-wrap: break-word
+}

@@ -1,0 +1,64 @@
+.not-selected{
+  font-size:15em;
+  color:#e7eaec;
+}
+
+.ibox-content.custom{
+  padding: 15px 8px 20px 8px;
+}
+
+table.custom td{
+  border-top:0;
+  border-bottom: 1px solid #e7eaec;
+}
+.content-image{
+  padding:50px 0;
+  background-position: center center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  min-height: 236px;
+  .edit{
+    position: absolute;
+    right: 30px;
+    top: 12px;
+    cursor: pointer;
+    fa-icon{
+      font-size:1.5em;
+    }
+  }
+  fa-icon.big{
+    font-size: 7em;
+  }
+}
+
+.image-action{
+  -webkit-transition: opacity 0.6s;
+  opacity: 1;
+  transition: opacity 0.6s;
+  width: 6.3vw;
+  height: 6.3vw;
+  border-radius: 50%;
+  position: relative;
+  left: 50%;
+  margin-left: -3.1vw;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+.img-table{
+  max-width: 150px;
+  max-height: 50px;
+}
+
+.eye{
+  font-size:1.1em;
+}
+
+a{
+  color:#676a6c;
+}
+
+.dateSize{
+  font-size: 1.1em !important;
+}

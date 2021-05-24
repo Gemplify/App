@@ -1,0 +1,329 @@
+
+<div id="ModalCreateSession" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">New session</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Name</label>
+          <input [(ngModel)]="session.name" type="text" placeholder="Session name" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input [(ngModel)]="session.description" type="text" placeholder="Session description" class="form-control">
+        </div>
+        <div *ngIf="errorSession != ''" class="animated shake alert alert-danger alert-dismissable">
+          {{errorSession}}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="saveSession()" type="button" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ModalEditSession" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit session</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Name</label>
+          <input [(ngModel)]="sessionSelected.name" type="text" placeholder="Session name" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input [(ngModel)]="sessionSelected.description" type="text" placeholder="Session description" class="form-control">
+        </div>
+        <div *ngIf="errorSession != ''" class="animated shake alert alert-danger alert-dismissable">
+          {{errorSession}}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="updateSession()" type="button" class="btn btn-primary">Update</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ModalConfirm" class="modal" tabindex="-1" role="dialog" *ngIf="block != null">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">Confirm action</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to remove the sectioned items? This option is irreversible.</p>
+      </div>
+      <div class="modal-footer">
+        <button (click)="removeElements()" type="button" class="btn btn-primary">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ModalAnswer" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">Answer</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="pb-3" *ngIf="answerData != null && answerData.configCard.image != null">
+          <div class="image-action" [style.backgroundImage]="'url('+global.api+answerData.configCard.image+')'"></div>
+        </div>
+        <div *ngIf="answerData != null && answerData.card.type != c.getStatic().OPTIONS_MULTIPLE && answerData.card.type != c.getStatic().OPTIONS_SINGLE" [innerHTML]="answerData.answer"></div>
+        <div *ngIf="answerData != null && answerData.card.type == c.getStatic().OPTIONS_MULTIPLE || answerData != null && answerData.card.type == c.getStatic().OPTIONS_SINGLE" >
+          <ol >
+            <li *ngFor="let option of answerData.card.options; let i = index"><mat-checkbox disabled="true" [(ngModel)]="answerData.answer[i]"></mat-checkbox> {{option}}</li>
+          </ol>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button data-dismiss="modal" type="button" class="btn btn-primary">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ModalShowRelations" class="modal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">Relations</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div *ngFor="let relation of relationsByCard" class="col-12 pb-2">
+          {{relation.data.name}} <fa-icon *ngIf="relation.data.type == r.getStatic().USER" [icon]="faUser"></fa-icon>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ModalShare" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">Share session</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+       <!-- <div class="form-group">
+          <label>Url</label>
+          <div class="input-group mb-2">
+            <div class="input-group-prepend">
+              <div class="input-group-text">{{global.domain}}</div>
+            </div>
+            <input [(ngModel)]="sessionSelected.share" type="text" class="form-control">
+            <div class="input-group-prepend">
+              <div class="input-group-text"><fa-icon [icon]="faClipboard"></fa-icon></div>
+            </div>
+          </div>
+        </div>-->
+        <p>Choose an expiration date for the public url.</p>
+        <div class="form-group">
+          <div class="col-12" class="dateSize p-0">
+            <mat-form-field class="w-100">
+              <input [(ngModel)]="sessionSelected.expiration" matInput [matDatepicker]="picker" placeholder="Expiration">
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="form-group" *ngIf="sessionSelected.share != ''">
+          <label>Public url (<small>Click on the url to copy to the clipboard</small>)</label>
+          <p class="break-word font-weight-bold pointer" (click)="copyUrl()"><em>{{global.domain + 'session/' + sessionSelected.id + '/' + sessionSelected.share}}</em></p>
+        </div>
+        <div *ngIf="errorShare != ''" class="animated shake alert alert-danger alert-dismissable">
+          {{errorShare}}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="createShare()" type="button" class="btn btn-primary">{{ (sessionSelected.share != "") ? "Update" : "Create" }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="wrapper">
+
+  <app-nav-left></app-nav-left>
+
+  <div id="page-wrapper" class="gray-bg">
+
+    <app-nav-header></app-nav-header>
+
+    <div class="wrapper wrapper-content animated fadeInRight">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="text-left title-principal">
+            <h1 class="m-0 color-blue-primary">
+              Session manager
+            </h1>
+            / <a routerLink="/session-manager">Session manager</a> <span *ngIf="versionSelected"> / {{versionSelected.data.block.text}}</span>
+          </div>
+        </div>
+
+
+        <div class="col-lg-4 pt-4">
+          <app-block-list (blockSelected)="onBlockSelected($event)" (deckEmit)="onDecks($event)"></app-block-list>
+        </div>
+
+
+        <div class="col-lg-8 pt-2" *ngIf="!showSession">
+
+          <div class="row pb-1" *ngIf="block != null">
+            <div class="col-12 col-md-4">
+              <div class="row">
+                <div class="col">
+                  <mat-select (selectionChange)="getSessions()" matNativeControl [(ngModel)]="versionSelected" class="form-control">
+                    <mat-option *ngFor="let version of block.versions" [value]="version">{{version.data.name}}</mat-option>
+                  </mat-select>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-8 mt-3 text-right">
+              <a data-toggle="modal" data-target="#ModalCreateSession" class="mr-3"><fa-icon [icon]="faClock"></fa-icon> Create session</a>
+              <a class="mr-3" data-toggle="modal" data-target="#ModalConfirm"><fa-icon [icon]="faTrashAlt"></fa-icon> Delete</a>
+            </div>
+          </div>
+
+
+          <div class="row">
+            <div class="col-12">
+
+              <div class="ibox" *ngIf="loadSession">
+                <div class="ibox-content text-center">
+                  <fa-icon [icon]="faCircleNotch" class="loader" [spin]="true" ></fa-icon>
+                </div>
+              </div>
+
+              <div class="ibox " *ngIf="versionSelected != null && !loadSession">
+                <div class="ibox-title">
+                  <mat-checkbox color="primary"></mat-checkbox>
+                  <h4 class="pl-4 d-inline">Session list</h4> <b class="pl-4">{{sessions.length}} founds</b>
+                </div>
+                <div class="ibox-content custom">
+                  <p *ngIf="sessions.length == 0" class="pl-2">No sessions created.</p>
+                  <table *ngIf="sessions.length > 0" class="table table-hover custom" >
+                    <tbody>
+                    <tr *ngFor="let session of sessions">
+                      <td width="40"><mat-checkbox [checked]="session.checked" color="primary"></mat-checkbox></td>
+                      <td width="80"><span class="label float-right" [class.label-primary]="session.status == session.getStatic().REVIEW" [class.label-warning-light]="session.status == session.getStatic().PENDING">{{ session.getStatic().STATUS[session.status] }}</span></td>
+                      <td>{{session.name}}<br>{{session.description | maxChar: 40}}</td>
+                      <td align="right">{{session.updatedAt}}</td>
+                      <td align="center" width="100">
+                        <a (click)="showSessionAction(session)"><fa-icon class="eye" [icon]="faEye"></fa-icon></a>
+                        <a class="pl-2" target="_blank" [routerLink]="'/session/' + session.id"><fa-icon [icon]="faWindowMaximize"></fa-icon></a>
+                        <a class="pl-2" (click)="editSession(session)" data-toggle="modal" data-target="#ModalEditSession"><fa-icon [icon]="faPen"></fa-icon></a>
+                        <a (click)="sessionSelected = session" class="pl-2" data-toggle="modal" data-target="#ModalShare"><fa-icon [icon]="faShareAlt"></fa-icon></a>
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <ng-container *ngIf="versionSelected == null">
+
+                <div class="row pb-5">
+                  <div class="col-12 text-center">
+
+                    <fa-icon class="not-selected" [icon]="faClock"></fa-icon>
+                    <h1>No block selected</h1>
+                    <p>Select an existing block from the left to view the sessions created.</p>
+                  </div>
+                </div>
+
+              </ng-container>
+
+            </div>
+          </div>
+
+
+        </div>
+
+        <div class="col-lg-8 pt-2"  *ngIf="showSession">
+
+          <div class="row pb-1">
+            <div class="col-12 mt-3 text-right">
+              <a (click)="showSession = false" class="mr-3"><< Back to list</a>
+            </div>
+          </div>
+
+
+          <div class="row">
+            <div class="col-12">
+
+              <ng-container *ngFor="let deck of (versionSelected ? versionSelected.decks : [])">
+
+                <div class="ibox ">
+                  <div class="ibox-title">
+                    <h3 class="pl-4 d-inline">{{deck.data.text}}</h3> <b class="pl-4">{{deck.cards.length}} Cards</b>
+                  </div>
+                  <div class="ibox-content custom">
+                    <p *ngIf="deck.cards.length == 0" class="pl-2">No cards created.</p>
+                    <table *ngIf="deck.cards.length > 0" class="table table-hover custom" >
+                      <tbody>
+                      <tr *ngFor="let card of deck.cards">
+                        <td width="80">
+                          <span class="label float-right label-warning-light" *ngIf="isPending(card); else answered">Pending</span>
+                          <ng-template #answered>
+                            <span class="label float-right label-primary">Answered</span>
+                          </ng-template>
+                        </td>
+                        <td width="120">{{card.getStatic().TYPES[card.type]}}</td>
+                        <td width="250">{{card.text | maxChar: 40}}</td>
+                        <td align="center" width="80">
+                          <a *ngIf="haveRelation(card)" data-toggle="modal" data-target="#ModalShowRelations" class="pointer" (click)="showRelations(card)"><fa-icon [icon]="faLink"></fa-icon></a>
+                          <a class="pl-1" data-toggle="modal" data-target="#ModalAnswer" (click)="setAnswerData(card)" ><fa-icon class="eye" [icon]="faEye"></fa-icon></a>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+              </ng-container>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+    <div class="footer">
+      <div class="pull-right">
+
+      </div>
+      <div>
+        <strong>Copyright</strong> Gemplify Särl &copy; 2020
+      </div>
+    </div>
+
+  </div>
+</div>

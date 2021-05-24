@@ -1,0 +1,421 @@
+
+<div id="ModalCreateSection" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">New sections</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Sections</label>
+          <app-input-list-box [clean]="decksSelected.length == 0" (dataSearch)="onSearch($event, constant.getStatic().DECK)" (dataOut)="onData($event, constant.getStatic().DECK)" [name]="['text']" [data]="deckSearch" [load]="loadingSection"></app-input-list-box>
+        </div>
+        <div *ngIf="errorSection != ''" class="animated shake alert alert-danger alert-dismissable">
+          {{errorSection}}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="saveSections()" type="button" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ModalEditVersion" class="modal" tabindex="-1" role="dialog" *ngIf="block != null">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Version</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Version name</label>
+          <input [(ngModel)]="versionSelected.data.name" type="text" placeholder="Version name" class="form-control">
+        </div>
+        <div *ngIf="errorVersion != ''" class="animated shake alert alert-danger alert-dismissable">
+          {{errorVersion}}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="updateVersion()" type="button" class="btn btn-primary">Update</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ModalAddVersion" class="modal" tabindex="-1" role="dialog" *ngIf="block != null">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Version</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Version name</label>
+          <input [(ngModel)]="version.name" type="text" placeholder="Version name" class="form-control">
+        </div>
+        <div *ngIf="errorVersion != ''" class="animated shake alert alert-danger alert-dismissable">
+          {{errorVersion}}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="addVersion()" type="button" class="btn btn-primary">Create</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ModalEditBlock" class="modal" tabindex="-1" role="dialog" *ngIf="block != null">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Block</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Block name</label>
+          <input [(ngModel)]="block.data.text" type="text" placeholder="Block name" class="form-control">
+        </div>
+        <div *ngIf="errorBlock != ''" class="animated shake alert alert-danger alert-dismissable">
+          {{errorBlock}}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="updateBlock()" type="button" class="btn btn-primary">Update</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ModalAddCard" class="modal" tabindex="-1" role="dialog" >
+  <div *ngIf="block != null" class="modal-dialog modal-lg" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">{{ (isEdit) ? 'Edit Card' : 'Add Card' }}</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-12">
+            <mat-radio-group (change)="changeGlobalType()" [(ngModel)]="card.pretype">
+              <mat-radio-button [disabled]="isEdit && card.pretype != i" *ngFor="let type of c.getStatic().TYPES_GLOBAL; let i = index" [value]="i" class="pr-3">{{type}}</mat-radio-button>
+            </mat-radio-group>
+          </div>
+          <div class="col-12 pt-3 pb-3">
+            <div class="form-group">
+              <label>Subject</label>
+              <input [(ngModel)]="card.text" type="text" placeholder="Subject" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="row" *ngIf="card.pretype == c.getStatic().GLOBAL_TEXT_IMAGE" >
+          <div class="col-12 pb-2">
+            <mat-radio-group (change)="card.options = ''" [(ngModel)]="card.type">
+              <mat-radio-button [disabled]="isEdit && card.type != c.getStatic().TEXT" class="pr-3" [value]="c.getStatic().TEXT">{{c.getStatic().TYPES[c.getStatic().TEXT]}}</mat-radio-button>
+              <mat-radio-button [disabled]="isEdit && card.type != c.getStatic().IMAGE" class="pr-3" [value]="c.getStatic().IMAGE">{{c.getStatic().TYPES[c.getStatic().IMAGE]}}</mat-radio-button>
+            </mat-radio-group>
+          </div>
+          <div class="col-12 pb-3" *ngIf="card.type == c.getStatic().TEXT">
+            <ckeditor [(ngModel)]="card.options" [editor]="editor" [config]="{toolbar: [ 'bold', 'italic', 'link' ], link: { addTargetToExternalLinks: true }}"></ckeditor>
+          </div>
+          <div class="col-12 pb-3" *ngIf="card.type == c.getStatic().IMAGE">
+            <div class="content-image d-flex align-content-center justify-content-center gray-bg" [ngStyle]="{'background-image': 'url('+((isEdit && !isImageEdit) ? global.api + card.options : card.options)+')'}">
+              <input (change)="changeCustomImage($event)" type="file" id="imageCustom" class="d-none" [(ngModel)]="card.options">
+              <div  class="edit" (click)="chooseImage()"><fa-icon  [icon]="faEdit"></fa-icon></div>
+              <fa-icon *ngIf="card.options == ''" class="big" [icon]="faImage"></fa-icon>
+            </div>
+          </div>
+        </div>
+        <div class="row" *ngIf="card.pretype == c.getStatic().GLOBAL_OPTIONS" >
+          <div class="col-12 pb-4">
+            <mat-radio-group [(ngModel)]="card.type">
+              <mat-radio-button [disabled]="isEdit && card.type != c.getStatic().OPTIONS_SINGLE" class="pr-3" [value]="c.getStatic().OPTIONS_SINGLE">{{c.getStatic().TYPES[c.getStatic().OPTIONS_SINGLE]}}</mat-radio-button>
+              <mat-radio-button [disabled]="isEdit && card.type != c.getStatic().OPTIONS_MULTIPLE" class="pr-3" [value]="c.getStatic().OPTIONS_MULTIPLE">{{c.getStatic().TYPES[c.getStatic().OPTIONS_MULTIPLE]}}</mat-radio-button>
+            </mat-radio-group>
+          </div>
+          <div class="col-12">
+            <div class="form-group">
+              <label>Options, separate by comas</label>
+              <input [(ngModel)]="card.options" type="text" placeholder="Options 1,Options 2,Options 3" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div *ngIf="errorCard != ''" class="animated shake alert alert-danger alert-dismissable">
+          {{errorCard}}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="saveCard()" *ngIf="!savingCard" type="button" class="btn btn-primary">Save</button>
+        <button *ngIf="savingCard" type="button" class="btn btn-primary"><fa-icon [icon]="faCircleNotch" [spin]="true"></fa-icon></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="ModalConfirm" class="modal" tabindex="-1" role="dialog" *ngIf="block != null">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">Confirm action</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to remove the sectioned items? This option is irreversible.</p>
+      </div>
+      <div class="modal-footer">
+        <button (click)="removeElements()" type="button" class="btn btn-primary">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ModalConfirmUpload" class="modal" tabindex="-1" role="dialog" *ngIf="block != null">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">Confirm action</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Uploading a file will delete all the information for the selected version. Are you sure?</p>
+      </div>
+      <div class="modal-footer">
+        <button (click)="showModalUpload()" type="button" class="btn btn-primary">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ModalRelations" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">Relations</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body pb-1">
+        <div *ngIf="relationSelected == null || relationSelected.status == relationSelected.getStatic().ENABLED" class="col-12 text-right">
+          <span class="pointer" (click)="newRelation()"><fa-icon [icon]="faPlus"></fa-icon>&nbsp;Create new relation</span>
+        </div>
+        <div *ngIf="relationSelected != null && relationSelected.id == 0" class="col-12 text-right">
+          <span class="pointer" (click)="listRelation()"><fa-icon [icon]="faBars"></fa-icon>&nbsp;Relation list</span>
+        </div>
+        <div class="form-group" *ngIf="relationSelected == null || relationSelected.status == relationSelected.getStatic().ENABLED">
+          <label>Relations</label>
+          <mat-select matNativeControl class="form-control" [(ngModel)]="relationSel" placeholder="Choose a relation" (selectionChange)="chooseRelation($event)">
+            <mat-option *ngFor="let relation of relations" [value]="relation">{{relation.data.name}}</mat-option>
+          </mat-select>
+        </div>
+        <div class="col-12 p-0 pt-1" *ngIf="relationSelected != null">
+          <hr>
+          <div class="form-group">
+            <label>Relation name</label>
+            <input type="text" [(ngModel)]="relationSelected.name" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>Add card</label>
+            <mat-select matNativeControl class="form-control" placeholder="Choose a card" (selectionChange)="addRelationCard($event)">
+              <ng-container *ngFor="let deck of (versionSelected ? versionSelected.decks : [])">
+                <ng-container *ngFor="let card of deck.cards">
+                  <mat-option *ngIf="!existRelationCard(card)" [value]="card">[{{card.blockreldeck.deck.text | maxChar: 30}}] {{card.text | maxChar: 40}}</mat-option>
+                </ng-container>
+              </ng-container>
+            </mat-select>
+          </div>
+          <div class="col-12 p-0 pt-2 pb-4">
+            <ng-container *ngFor="let item of relationCards">
+              <span class="simple_tag" *ngIf="item.status != item.getStatic().DELETED">{{item.card.text | maxChar:10}} <span class="pointer ml-2" (click)="removeRelationCard(item)">x</span></span>
+            </ng-container>
+          </div>
+        </div>
+        <div *ngIf="errorRelation != ''" class="mt-4 animated shake alert alert-danger alert-dismissable">
+          {{errorRelation}}
+        </div>
+        <div class="col-12 text-right p-0 pt-2" *ngIf="relationSelected != null && relationSelected.status == relationSelected.getStatic().ENABLED">
+          <mat-checkbox [(ngModel)]="controlDeleteRelation"></mat-checkbox> Check to remove the selected relation
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button [disabled]="!controlDeleteRelation" *ngIf="relationSelected != null && relationSelected.status == relationSelected.getStatic().ENABLED" (click)="deleteRelation()" type="button" class="btn btn-primary">Delete</button>
+        <button (click)="saveRelation()" type="button" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ModalShowRelations" class="modal" tabindex="-1" role="dialog" >
+  <div class="modal-dialog" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">Relations</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div *ngFor="let relation of relationsByCard" class="col-12 pb-2">
+          <a class="pointer" (click)="showRelationClick(relation)">{{relation.data.name}}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="wrapper">
+
+  <app-nav-left></app-nav-left>
+
+  <div id="page-wrapper" class="gray-bg">
+
+    <app-nav-header></app-nav-header>
+
+    <div class="wrapper wrapper-content animated fadeInRight">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="text-left title-principal">
+            <h1 class="m-0 color-blue-primary" (click)="showElements()">
+              Block manager
+            </h1>
+            / <a routerLink="/block-manager">Block manager</a> <span *ngIf="block"> / {{block.data.text}}</span>
+          </div>
+        </div>
+
+
+        <div class="col-lg-4 pt-4">
+          <app-block-list (blockSelected)="onBlockSelected($event)" (deckEmit)="onDecks($event)"></app-block-list>
+        </div>
+
+
+        <div class="col-lg-8 pt-2">
+
+          <div class="row pb-1" *ngIf="block != null">
+            <div class="col-12 col-md-4">
+              <div class="row">
+                <div class="col-auto pl-3 mt-2">
+                  <span data-toggle="modal" data-target="#ModalAddVersion" class="pointer"><fa-icon [icon]="faPlus"></fa-icon></span>
+                </div>
+                <div class="col p-0">
+                  <mat-select matNativeControl [(ngModel)]="versionSelected" class="form-control" (selectionChange)="getRelations()">
+                    <mat-option *ngFor="let version of block.versions" [value]="version">{{version.data.name}}</mat-option>
+                  </mat-select>
+                </div>
+                <div class="col-auto mt-2">
+                  <span data-toggle="modal" data-target="#ModalEditVersion"  class="pointer"><fa-icon [icon]="faPen"></fa-icon> Edit</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-8 mt-3 text-right">
+              <a style="color: #676a6c;" class="dropdown-toggle" data-toggle="dropdown" href="#" aria-expanded="false">
+                <fa-icon [icon]="faBars"></fa-icon>
+              </a>
+              <ul class="dropdown-menu dropdown-user" x-placement="bottom-start" style="position: absolute; top: 18px; left: 26px; will-change: top, left;">
+                <li><a data-toggle="modal" data-target="#ModalEditBlock" class="mr-3"><fa-icon [icon]="faEdit"></fa-icon> Edit block</a></li>
+                <li><a data-toggle="modal" data-target="#ModalCreateSection" class="mr-3"><fa-icon [icon]="faBars"></fa-icon> Create sections</a></li>
+                <li><a data-toggle="modal" data-target="#ModalConfirmUpload" class="mr-3"><fa-icon [icon]="faFileExcel"></fa-icon> Import excel</a></li>
+                <li><a (click)="exportExcel()" class="mr-3"><fa-icon [icon]="faFileExcel"></fa-icon> Export excel</a></li>
+                <li><a data-toggle="modal" data-target="#ModalRelations" class="mr-3"><fa-icon [icon]="faLink"></fa-icon> Relations</a></li>
+                <li><a class="mr-3" data-toggle="modal" data-target="#ModalConfirm"><fa-icon [icon]="faTrashAlt"></fa-icon> Delete</a></li>
+              </ul>
+              <input (change)="addFile($event)" type="file" class="d-none" id="upload-excel">
+            </div>
+          </div>
+
+
+          <div class="row">
+            <div class="col-12">
+
+              <div class="ibox" *ngIf="versionSelected && versionSelected.decks.length == 0">
+                <div class="ibox-content">
+                  <p class="pt-3" >No content created.</p>
+                </div>
+              </div>
+
+              <ng-container *ngFor="let deck of (versionSelected ? versionSelected.decks : [])">
+
+                <div class="ibox ">
+                  <div class="ibox-title">
+                    <mat-checkbox (change)="checkDeck(deck, $event)" [checked]="deck.data.checked" color="primary"></mat-checkbox>
+                    <h3 class="pl-4 d-inline">{{deck.data.text}}</h3> <b class="pl-4">{{deck.cards.length}} Cards</b>
+                    <div class="ibox-tools">
+                      <a class="collapse-link">
+                        <a (click)="chooseBlockRelDeck(deck)" data-toggle="modal" data-focus="false" data-target="#ModalAddCard" class="pointer" ><fa-icon [icon]="faPlus"></fa-icon> Add card</a> <fa-icon class="ml-2" [icon]="faChevronDown"></fa-icon>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="ibox-content custom">
+                    <p *ngIf="deck.cards.length == 0" class="pl-2">No cards created.</p>
+                    <table *ngIf="deck.cards.length > 0" class="table table-hover custom" >
+                      <tbody>
+                      <tr *ngFor="let card of deck.cards">
+                        <td width="40"><mat-checkbox (change)="checkCard(card, deck, $event)" [checked]="card.checked" color="primary"></mat-checkbox></td>
+                        <td width="120">{{card.getStatic().TYPES[card.type]}}</td>
+                        <td width="250">{{card.text | maxChar: 40}}</td>
+                        <td *ngIf="card.type != card.getStatic().TEXT && card.type != card.getStatic().IMAGE">{{card.options}}</td>
+                        <td *ngIf="card.type == card.getStatic().TEXT">{{card.options | stripHtml | maxChar : 50}}</td>
+                        <td *ngIf="card.type == card.getStatic().IMAGE"><img src="{{((isBase64(card.options)) ? card.options : global.api + card.options)}}" class="img-table"></td>
+                        <td align="center" width="80">
+                          <a *ngIf="haveRelation(card)" data-toggle="modal" data-target="#ModalShowRelations" class="pointer" (click)="showRelations(card)"><fa-icon [icon]="faLink"></fa-icon></a>
+                          <a class="pl-2" (click)="editCard(card)"><fa-icon [icon]="faPen"></fa-icon></a>
+                          <a class="pl-2 d-none"><fa-icon [icon]="faCopy"></fa-icon></a>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+              </ng-container>
+
+              <ng-container *ngIf="block == null">
+
+                <div class="row pb-5">
+                  <div class="col-12 text-center">
+
+                    <fa-icon class="not-selected" [icon]="faClone"></fa-icon>
+                    <h1>No block selected</h1>
+                    <p>Select an existing block from the left or create a new one.</p>
+                  </div>
+                </div>
+
+              </ng-container>
+
+            </div>
+          </div>
+
+
+        </div>
+
+      </div>
+    </div>
+    <div class="footer">
+      <div class="pull-right">
+
+      </div>
+      <div>
+        <strong>Copyright</strong> Gemplify Särl &copy; 2020
+      </div>
+    </div>
+
+  </div>
+</div>

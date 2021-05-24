@@ -1,0 +1,106 @@
+
+<div id="ModalCreateBlock" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">New block</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col">
+            <div class="form-group">
+              <label>Name</label>
+              <input [(ngModel)]="block.text" type="text" placeholder="Block name" class="form-control">
+            </div>
+          </div>
+          <div class="col">
+            <div class="form-group">
+              <label>Version</label>
+              <input [(ngModel)]="version.name" type="text" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Sections</label>
+          <app-input-list-box [clean]="decksSelected.length == 0" (dataSearch)="onSearch($event, constant.getStatic().DECK)" (dataOut)="onData($event, constant.getStatic().DECK)" [name]="['text']" [data]="deckSearch" [load]="loadingSection"></app-input-list-box>
+        </div>
+        <div *ngIf="error != ''" class="animated shake alert alert-danger alert-dismissable">
+          {{error}}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="saveBlock()" type="button" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="row pb-1">
+  <div class="col-6">
+    <a data-toggle="modal"  data-target="#ModalCreateBlock"><fa-icon [icon]="faClone"></fa-icon> Create block</a>
+  </div>
+  <div class="col-6 text-right">
+    <a (click)="deleteBlock()"><fa-icon [icon]="faTrashAlt"></fa-icon> Delete block</a>
+  </div>
+</div>
+
+<div class="ibox">
+
+  <div class="ibox-title pr-4">
+    <h5 class="mb-0 color-blue-primary">Search:</h5>
+    <a (click)="clearSearch()" class="float-right color-blue-primary">Clear</a>
+  </div>
+
+  <div class="ibox-content pb-0">
+
+    <div class="input-group mb-0">
+      <input (keyup)="searchBlockByText($event)" [(ngModel)]="textSearch" type="text" class="form-control">
+      <div class="input-group-append">
+        <span class="input-group-addon"><fa-icon [icon]="faSearch"></fa-icon></span>
+      </div>
+    </div>
+
+  </div>
+
+
+  <div class="ibox-title border-0">
+    <h5 class="mb-0 color-blue-primary">Blocks:</h5>
+  </div>
+
+  <div class="ibox-content pb-0">
+      <div class="scroll-block-list position-relative">
+
+        <table *ngIf="blocks.length > 0" class="table mt-2 mb-0">
+          <tbody>
+          <tr *ngFor="let block of blocks" [ngClass]="{'selected' : (blockSelectedCss.id == block.data.id)}">
+            <td><mat-checkbox (change)="checkBlock(block, $event)" [checked]="block.checked" color="primary"></mat-checkbox></td>
+            <td (click)="selectBlock(block)" class="pointer"><span class="color-blue-primary">{{block.data.text}}</span><br><small *ngFor="let deck of block.versions[0].decks; let i = index">{{deck.data.text}}<ng-container *ngIf="(i+1) < block.versions[0].decks.length">, </ng-container></small></td>
+            <td (click)="selectBlock(block)" align="right" class="pointer"><small>{{block.data.updatedAt | date: 'MMMM d, y'}}</small><br><small>{{block.data.updatedAt | date: 'H:mm'}}</small></td>
+          </tr>
+          </tbody>
+        </table>
+
+        <p *ngIf="blocks.length == 0" class="pb-5 pt-2 font-italic">Blocks not found</p>
+        <div *ngIf="loadSearch" class="contentLoad"><fa-icon [icon]="faCircleNotch" class="loader fa-spin" ></fa-icon></div>
+
+      </div>
+
+  </div>
+
+
+  <div class="ibox-title border-0">
+    <h5 class="mb-0 color-blue-primary">Sections:</h5>
+  </div>
+
+  <div class="ibox-content">
+
+    <span (click)="findBlocks(deck)" *ngFor="let deck of decks" class="simple_tag pointer">{{deck.text}}</span>
+
+  </div>
+
+
+</div>

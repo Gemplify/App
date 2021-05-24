@@ -1,0 +1,458 @@
+<div id="ModalAnswer" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">Answer</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <ckeditor [editor]="editor" [(ngModel)]="answerSelected.answer" [config]="{toolbar: [ 'imageUpload', 'bold', 'italic', 'link' ], ckfinder: { uploadUrl: global.domain + 'api/public/ckfinder/core/connector/php/connector.php?command=QuickUpload&type=Images&responseType=json'}}"></ckeditor>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ModalConfirm" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">Confirm action</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to remove the selected card? This option is irreversible.</p>
+      </div>
+      <div class="modal-footer">
+        <button (click)="removeCard()" type="button" class="btn btn-primary">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div [class.show]="showImage != null" id="ModalImage">
+  <div class="closeImage pointer" (click)="showImage = null"><fa-icon [icon]="faTimesCircle"></fa-icon></div>
+  <img id="imageBig" [src]="(showImage != null) ? global.api + showImage : ''">
+</div>
+
+<div id="ModalNewSession" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">New Session</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Please search by any of the fields to find the session you want to load</p>
+        <div class="row">
+          <div class="col-12 col-md-6">
+            <div class="form-group">
+              <label>Select block card</label>
+              <app-select-list-box (dataSearch)="onSearch($event, constant.getStatic().BLOCK)" (dataOut)="onData($event, constant.getStatic().BLOCK)" [name]="['text']" [data]="blockSearch" [load]="loadingBlock"></app-select-list-box>
+            </div>
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="form-group">
+              <label>Version</label>
+              <select class="form-control" [disabled]="blockSelected == null" [(ngModel)]="sessionNew.version">
+                <ng-container *ngIf="blockSelected != null">
+                  <option value="">Select ..</option>
+                  <option *ngFor="let v of blockSelected.versions" [ngValue]="v.version">{{v.version.name}}</option>
+                </ng-container>
+                <option *ngIf="blockSelected == null"></option>
+              </select>
+            </div>
+          </div>
+          <div class="col-12">
+            <label>Session name</label>
+            <input type="text" [(ngModel)]="sessionNew.name" class="form-control">
+          </div>
+          <div class="col-12 pt-3">
+            <label>Session description</label>
+            <input type="text" [(ngModel)]="sessionNew.description" class="form-control">
+          </div>
+        </div>
+        <div *ngIf="errorSession != ''" class="mt-3 animated shake alert alert-danger alert-dismissable">
+          {{errorSession}}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" (click)="createNewSession()">Create</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ModalLoadSession" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">Load Session</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-12 col-md-6">
+            <div class="form-group">
+              <label>Select block card</label>
+              <app-select-list-box (dataSearch)="onSearch($event, constant.getStatic().BLOCK)" (dataOut)="onData($event, constant.getStatic().BLOCK)" [name]="['text']" [data]="blockSearch" [load]="loadingBlock"></app-select-list-box>
+            </div>
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="form-group">
+              <label>Version</label>
+              <select (change)="sessionLoadSelected = null" class="form-control" [disabled]="blockSelected == null" [(ngModel)]="versionSelected">
+                <ng-container *ngIf="blockSelected != null">
+                  <option value="">Select ..</option>
+                  <option *ngFor="let v of blockSelected.versions" [ngValue]="v.version">{{v.version.name}}</option>
+                </ng-container>
+                <option *ngIf="blockSelected == null"></option>
+              </select>
+            </div>
+          </div>
+          <div class="col-12">
+            <label>Select session</label>
+            <app-select-list-box [clean]="sessionLoadSelected == null" [disabled]="blockSelected == null || versionSelected == null" (dataSearch)="onSearch($event, constant.getStatic().SESSION)" (dataOut)="onData($event, constant.getStatic().SESSION)" [name]="['name']" [data]="sessionLoadSearch" [load]="loadingBlock"></app-select-list-box>
+          </div>
+        </div>
+        <div *ngIf="errorLoadSession != ''" class="mt-3 animated shake alert alert-danger alert-dismissable">
+          {{errorLoadSession}}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button [disabled]="blockSelected == null || versionSelected == null || sessionLoadSelected == null" type="button" class="btn btn-primary" (click)="redirectSession()">Load</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ModalAddCard" class="modal" tabindex="-1" role="dialog" cdkDrag>
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">Add card</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-12" *ngIf="user != null">
+            <div class="form-group">
+              <label>Choose section card</label>
+              <select class="form-control" [(ngModel)]="card.blockreldeck.deck" [disabled]="card.pretype == card.getStatic().GLOBAL_USER">
+                <option [selected]="card.pretype == card.getStatic().GLOBAL_USER">Select ..</option>
+                <ng-container *ngFor="let item of list">
+                  <option *ngIf="item.deck != null" [ngValue]="item.deck">{{item.deck.text}}</option>
+                </ng-container>
+
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <mat-radio-group (change)="changeGlobalType()" [(ngModel)]="card.pretype">
+              <ng-container *ngFor="let type of card.getStatic().TYPES_GLOBAL_EXTRA; let i = index">
+                <mat-radio-button *ngIf="user != null || i == card.getStatic().GLOBAL_USER" [value]="i" class="pr-3">{{type}}</mat-radio-button>
+              </ng-container>
+            </mat-radio-group>
+          </div>
+          <div class="col-12 pt-3 pb-3" *ngIf="card.pretype != card.getStatic().GLOBAL_USER">
+            <div class="form-group">
+              <label>Subject</label>
+              <input [(ngModel)]="card.text" type="text" placeholder="Subject" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="row" *ngIf="card.pretype == card.getStatic().GLOBAL_TEXT_IMAGE" >
+          <div class="col-12 pb-2">
+            <mat-radio-group (change)="card.options = ''" [(ngModel)]="card.type">
+              <mat-radio-button class="pr-3" [value]="card.getStatic().TEXT">{{card.getStatic().TYPES_EXTRA[card.getStatic().TEXT]}}</mat-radio-button>
+              <mat-radio-button class="pr-3" [value]="card.getStatic().IMAGE">{{card.getStatic().TYPES_EXTRA[card.getStatic().IMAGE]}}</mat-radio-button>
+            </mat-radio-group>
+          </div>
+          <div class="col-12 pb-3" *ngIf="card.type == card.getStatic().TEXT">
+            <ckeditor [(ngModel)]="card.options" [editor]="editor" [config]="{toolbar: [ 'bold', 'italic', 'link' ], link: { addTargetToExternalLinks: true }}"></ckeditor>
+          </div>
+          <div class="col-12 pb-3" *ngIf="card.type == card.getStatic().IMAGE">
+            <div class="content-image d-flex align-content-center justify-content-center gray-bg" [ngStyle]="{'background-image': 'url('+card.options+')'}">
+              <input (change)="changeCustomImageCard($event)" type="file" id="imageCustomCard" class="d-none" [(ngModel)]="card.options">
+              <div  class="edit" (click)="chooseImageCard()"><fa-icon  [icon]="faEdit"></fa-icon></div>
+              <fa-icon *ngIf="card.options == ''" class="big" [icon]="faImage"></fa-icon>
+            </div>
+          </div>
+        </div>
+        <div class="row" *ngIf="card.pretype == card.getStatic().GLOBAL_OPTIONS" >
+          <div class="col-12 pb-4">
+            <mat-radio-group [(ngModel)]="card.type">
+              <mat-radio-button class="pr-3" [value]="card.getStatic().OPTIONS_SINGLE">{{card.getStatic().TYPES_EXTRA[card.getStatic().OPTIONS_SINGLE]}}</mat-radio-button>
+              <mat-radio-button class="pr-3" [value]="card.getStatic().OPTIONS_MULTIPLE">{{card.getStatic().TYPES_EXTRA[card.getStatic().OPTIONS_MULTIPLE]}}</mat-radio-button>
+            </mat-radio-group>
+          </div>
+          <div class="col-12">
+            <div class="form-group">
+              <label>Options, separate by comas</label>
+              <input [(ngModel)]="card.options" type="text" placeholder="Options 1,Options 2,Options 3" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="row pt-3" *ngIf="card.pretype == card.getStatic().GLOBAL_USER" >
+          <div class="col-12 pb-3">
+            <ckeditor [(ngModel)]="card.options" [editor]="editor" [config]="{toolbar: [ 'bold', 'italic', 'link' ], link: { addTargetToExternalLinks: true }}"></ckeditor>
+          </div>
+        </div>
+        <div *ngIf="errorCard != ''" class="animated shake alert alert-danger alert-dismissable">
+          {{errorCard}}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="saveCard()" type="button" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ModalRelations" class="modal" tabindex="-1" role="dialog" cdkDrag>
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">Relations</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body pb-1">
+        <div *ngIf="relationChoose == null || relationChoose.status == relationChoose.getStatic().ENABLED" class="col-12 text-right">
+          <span class="pointer" (click)="newRelation()"><fa-icon [icon]="faPlus"></fa-icon>&nbsp;Create new relation</span>
+        </div>
+        <div *ngIf="relationChoose != null && relationChoose.id == 0" class="col-12 text-right">
+          <span class="pointer" (click)="listRelation()"><fa-icon [icon]="faBars"></fa-icon>&nbsp;Relation list</span>
+        </div>
+        <div class="form-group" *ngIf="relationChoose == null || relationChoose.status == relationChoose.getStatic().ENABLED">
+          <label>Relations</label>
+          <mat-select matNativeControl class="form-control" [(ngModel)]="relationSel" placeholder="Choose a relation" (selectionChange)="chooseRelation($event)">
+            <mat-option *ngFor="let relation of relations" [value]="relation">{{relation.data.name}}</mat-option>
+          </mat-select>
+        </div>
+        <div class="col-12 p-0 pt-1" *ngIf="relationChoose != null">
+          <hr>
+          <div class="form-group">
+            <label>Relation by</label>
+            <mat-select [disabled]="relationChoose == null || relationChoose.status == relationChoose.getStatic().ENABLED" matNativeControl class="form-control" [(ngModel)]="relationChoose.type">
+              <mat-option [value]="r.getStatic().ADMIN">Admin</mat-option>
+              <mat-option [value]="r.getStatic().USER">User</mat-option>
+            </mat-select>
+          </div>
+          <div class="form-group">
+            <label>Relation name</label>
+            <input type="text" [(ngModel)]="relationChoose.name" class="form-control">
+          </div>
+          <div class="form-group" *ngIf="relationChoose.type == r.getStatic().USER">
+            <label>Relation description</label>
+            <input type="text" [(ngModel)]="relationChoose.description" class="form-control">
+          </div>
+          <div class="form-group">
+            <label>Add card</label>
+            <mat-select matNativeControl class="form-control" placeholder="Choose a card" (selectionChange)="addRelationCard($event)">
+              <ng-container *ngFor="let item of list">
+                <ng-container *ngFor="let answer of item.answers">
+                  <mat-option *ngIf="!existRelationCard(answer.card) && answer.card != null" [value]="answer.card">[{{answer.card.blockreldeck.deck.text | maxChar: 30}}] {{answer.card.text | maxChar: 40}}</mat-option>
+                </ng-container>
+              </ng-container>
+            </mat-select>
+          </div>
+          <div class="col-12 p-0 pt-2 pb-4">
+            <ng-container *ngFor="let item of relationCards">
+              <span class="simple_tag" *ngIf="item.status != item.getStatic().DELETED">{{item.card.text | maxChar:10}} <span class="pointer ml-2" (click)="removeRelationCard(item)">x</span></span>
+            </ng-container>
+          </div>
+        </div>
+        <div *ngIf="errorRelation != ''" class="mt-4 animated shake alert alert-danger alert-dismissable">
+          {{errorRelation}}
+        </div>
+        <div class="col-12 text-right p-0 pt-2" *ngIf="relationChoose != null && relationChoose.status == relationChoose.getStatic().ENABLED">
+          <mat-checkbox [(ngModel)]="controlDeleteRelation"></mat-checkbox> Check to remove the selected relation
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button [disabled]="!controlDeleteRelation" *ngIf="relationChoose != null && relationChoose.status == relationChoose.getStatic().ENABLED" (click)="deleteRelation()" type="button" class="btn btn-primary">Delete</button>
+        <button (click)="saveRelation()" type="button" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="ModalCreateSection" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content animated bounceInDown">
+      <div class="modal-header">
+        <h3 class="modal-title">New sections</h3>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Sections</label>
+          <app-input-list-box [clean]="decksSelected.length == 0" (dataSearch)="onSearch($event, constant.getStatic().DECK)" (dataOut)="onData($event, constant.getStatic().DECK)" [name]="['text']" [data]="deckSearch" [load]="loadingSection"></app-input-list-box>
+        </div>
+        <div *ngIf="errorSection != ''" class="animated shake alert alert-danger alert-dismissable">
+          {{errorSection}}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button (click)="saveSections()" type="button" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="isLoad" class="loading d-flex justify-content-center align-items-center"><fa-icon [icon]="faSpinner" [pulse]="true"></fa-icon></div>
+
+<div id="desk" (window:resize)="onResize($event)">
+
+  <div class="modal fade" id="modal-info" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Info</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h3>Actions:</h3>
+          <ul><li>Drag cards all around the desk.</li>
+            <li>Double click on a card to flip it.</li>
+            <li>Lock / Unlock the card clicking on the pin at left corner. While the card is locked, you won´t be able to drag it.</li>
+            <li>Press on Trash icon if you want to remove the card from desk.</li>
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cardsArea">
+
+    <div class="headerDesk">
+      <div class="title"><small class="font-weight-bold" *ngIf="session != null">{{session.name}} - {{session.version.name}}</small></div>
+      <div class="logo"><img src="assets/imgs/logoMenu.png"/></div>
+      <div class="clock">{{ time }}</div>
+      <div class="centerPanel">
+        <span *ngIf="user != null" (click)="newSession()" class="btn restart"><fa-icon [icon]="faPlus" class="fc-blue-session icon-top"></fa-icon><br><small>New</small></span>
+        <span (click)="saveSessionUser()" class="btn restart"><fa-icon [icon]="faSave" class="fc-blue-session icon-top"></fa-icon><br><small>Save</small></span>
+        <span *ngIf="user != null" (click)="loadSession()" class="btn restart"><fa-icon [icon]="faDownload" class="fc-blue-session icon-top"></fa-icon><br><small>Load</small></span>
+        <span class="line-blue">&nbsp;</span>
+        <span (click)="restart()" class="btn restart"><fa-icon [icon]="faReply" class="fc-blue-session icon-top"></fa-icon><br/><small>Restart</small></span>
+        <span (click)="addCard()" class="btn restart pl-0">
+          <div class="stack">
+            <fa-icon [icon]="faFile" class="fc-blue-session icon-top"></fa-icon>
+            <fa-icon [icon]="faPlus" class="fc-blue-session icon-top inside"></fa-icon>
+          </div>
+          <small>Add Card</small>
+        </span>
+        <span *ngIf="user != null" data-toggle="modal" data-target="#ModalCreateSection" class="btn restart pl-0"><fa-icon [icon]="faBars" class="fc-blue-session icon-top"></fa-icon><br/><small>Add Section</small></span>
+      </div>
+      <div class="date">
+        <span (click)="info()" class="btn info float-right"><fa-icon [icon]="faInfoCircle" class="fc-blue-session icon-top"></fa-icon></span>
+        <span class="float-right font-weight-bold date-session">{{ date | date:"MMM d, y, HH:mm:ss" }}</span>
+      </div>
+    </div>
+
+    <div id="rug">
+      <div class="phrase">Please, pick the card you would like to ask for</div>
+      <div id="w-gaps">
+
+        <ng-container *ngFor="let item of list">
+
+          <div class="gap-deck">
+            <div class="titleGap">{{(item.deck != null) ? item.deck.text : "User cards"}}</div>
+            <img class="shadow-deck" src="assets/imgs/deck_shadow.png" width="100%" height="auto"/>
+
+            <ng-container *ngFor="let answer of item.answers">
+              <div cdkDrag [cdkDragDisabled]="answer.configCard.status == c.getStatic().BLOCKED" class="flip-card" *ngIf="answer.configCard.status != c.getStatic().DISABLED" [ngClass]="((answer.configCard != null && answer.configCard.flip) && answer.configCard.status == c.getStatic().ENABLED) ? 'flip-card-zoom' : ''"
+                   (mousedown)="reOrder(answer)" (cdkDragEnded)="updateConfig($event, answer)" [cdkDragFreeDragPosition]="((answer.configCard != null) ? {x: answer.configCard.x, y: answer.configCard.y} : null)" [ngStyle]="{'z-index' : ((answer.configCard != null) ? answer.configCard.zIndex : answer.card.zIndex)}" >
+                <div [ngClass]="(answer.configCard != null && answer.configCard.flip) ? 'flip-card-inner flipped' : 'flip-card-inner'">
+                  <div class="flip-card-front" [class.relationFocus]="answer.configCard.relationFocus != null" (dblclick)="flip(answer)">
+                    <img class="img-default" src="assets/imgs/card-back.jpg" alt="card">
+                    <div (click)="chooseImage(answer)" [class.hide]="answer.configCard.flip" class="file-action"><span> <fa-icon [icon]="faImage"></fa-icon> Upload Image</span></div>
+                    <div *ngIf="answer.configCard.image != null" [class.hide]="answer.configCard.flip" class="image-action" [style.backgroundImage]="'url('+((isBase64(answer.configCard.image)) ? answer.configCard.image : global.api + answer.configCard.image)+')'"></div>
+                    <input (change)="changeCustomImage($event)" type="file" accept="image/*" id="imageCustom" class="d-none">
+                  </div>
+                  <div class="flip-card-back shadowFar" [class.relationFocus]="answer.configCard.relationFocus != null" [ngClass]="(answer.configCard.status == c.getStatic().ENABLED) ? '': 'shadowClose'" (dblclick)="flip(answer)">
+
+                    <a class="btn trash" data-toggle="modal" data-target="#ModalConfirm" (click)="removeCardAux = answer"></a>
+                    <div class="btn pin-off" (click)="blockCard(answer)"></div>
+                    <div class="btn relation" *ngIf="answer.card != null">
+                      <div (click)="answer.configCard.relation = !answer.configCard.relation"><fa-icon [icon]="faLink"></fa-icon></div>
+                      <div class="window-relation" [class.show]="answer.configCard.relation">
+                        <ul>
+                          <ng-container *ngFor="let relation of relations">
+                            <ng-container *ngFor="let c of relation.cards">
+                              <li *ngIf="c.card.id == answer.card.id" (click)="showRelations(relation)" [class.font-weight-bold]="relationSelected != null && relationSelected.id == relation.data.id">{{ relation.data.name | maxChar: 23 }} <fa-icon *ngIf="relation.data.type == r.getStatic().USER" [icon]="faUser"></fa-icon></li>
+                            </ng-container>
+                          </ng-container>
+                          <li (click)="newRelation()" data-toggle="modal" data-target="#ModalRelations" class="font-weight-bold pt-1">+ Create relation</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div class="btn relation" *ngIf="answer.card == null && answer.type == c.getStatic().CARD_USER">
+                      <div ><fa-icon [icon]="faUser"></fa-icon></div>
+                    </div>
+
+                    <div *ngIf="answer.configCard.image != null" class="image-action" [style.backgroundImage]="'url('+((isBase64(answer.configCard.image)) ? answer.configCard.image : global.api + answer.configCard.image)+')'"></div>
+
+                    <span *ngIf="(answer.configCard != null && answer.configCard.flip)"><b *ngIf="answer.card != null" class="fc-blue-session">{{answer.card.text}}</b>
+
+                      <small class="fc-blue-session" *ngIf="answer.card != null && answer.card.type == answer.card.getStatic().TEXT" ><br><br><div [innerHTML]="answer.card.options"></div></small>
+
+                      <small class="fc-blue-session" *ngIf="answer.card == null && answer.type == c.getStatic().CARD_USER" ><br><br><div [innerHTML]="answer.answer"></div></small>
+
+                      <p><br><img (click)="showImg(answer.card.options)" class="pointer imageCard" *ngIf="answer.card != null && answer.card.type == answer.card.getStatic().IMAGE" [src]="global.api + answer.card.options"></p>
+
+                      <ol class="fc-blue-session" *ngIf="answer.card != null && answer.card.type == c.getStatic().OPTIONS_SINGLE || answer.card != null && answer.card.type == c.getStatic().OPTIONS_MULTIPLE">
+                        <li *ngFor="let option of answer.card.options; let i = index"><mat-checkbox (change)="checkSingle(answer, i)" [(ngModel)]="answer.answer[i]"></mat-checkbox> {{option}}</li>
+                      </ol>
+
+                    </span>
+
+                    <button *ngIf="answer.card != null && answer.card.type != c.getStatic().OPTIONS_SINGLE && answer.card.type != c.getStatic().OPTIONS_MULTIPLE" (click)="answerSelected = answer" data-focus="false" data-toggle="modal" data-target="#ModalAnswer" class="answer" [class.answered]="answer.answer != null && answer.answer != ''">Answer</button>
+
+                    <img src="assets/imgs/card-front.jpg" alt="card">
+
+                  </div>
+                </div>
+              </div>
+
+            </ng-container>
+
+          </div>
+
+        </ng-container>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+
+</div>
+

@@ -1,0 +1,102 @@
+<div id="desk">
+
+  <div class="modal fade" id="modal-info" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Info</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h3>Actions:</h3>
+          <ul><li>Drag cards all around the desk.</li>
+          <li>Double click on a card to flip it.</li>
+          <li>Lock / Unlock the card clicking on the pin at left corner. While the card is locked, you won´t be able to drag it.</li>
+          <li>Press on Trash icon if you want to remove the card from desk.</li>
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cardsArea">
+
+      <!--<div *ngFor="let item of list" class="flip-card" [ngClass]="{'flip-card-zoom': item.car.flip}" (mousedown)="reOrder(card)" [ngStyle]="{'z-index' : card.zIndex}" cdkDrag >
+      <div [ngClass]="card.flip ? 'flip-card-inner flipped' : 'flip-card-inner'">
+        <div class="flip-card-front">
+          <button *ngIf="!card.flip" class="flip-button" (click)="flip(card)" >Flip</button>
+          <img src="/assets/imgs/card-back.jpg" alt="card">
+        </div>
+        <div class="flip-card-back">
+          <span *ngIf="card.flip">{{card.text}}</span>
+          <button class="flip-button" (click)="flip(card)">Flip</button>
+          <img src="/assets/imgs/card-front.jpg" alt="card">
+        </div>
+      </div>
+    </div>-->
+
+    <div class="headerDesk">
+      <div class="logo"><img src="assets/imgs/logoMenu.png"/></div>
+        <div class="clock">{{ time }}</div>
+        <div class="centerPanel">
+          <span (click)="restart()" class="btn restart"><img src="assets/imgs/restart.png" /><br/>Restart</span>
+          <span (click)="info()" class="btn info"><img src="assets/imgs/info.png" /><br/>Info</span>
+        </div>
+    </div>
+
+
+    <div id="rug">
+      <div class="phrase">Please, pick the card you would like to ask for</div>
+      <div id="w-gaps">
+
+        <div *ngFor="let item of list" class="gap-deck">
+          <div class="titleGap">{{item.deck.text}}</div>
+          <img class="shadow-deck" src="assets/imgs/deck_shadow.png" width="100%" height="auto"/>
+
+          <ng-container *ngFor="let card of item.cards">
+
+            <div cdkDrag [cdkDragDisabled]="card.status == card.getStatic().BLOCKED" class="flip-card" *ngIf="card.status != card.getStatic().DISABLED" [ngClass]="(card.flip && card.status == card.getStatic().ENABLED) ? 'flip-card-zoom' : ''" (mousedown)="reOrder(card)" [ngStyle]="{'z-index' : card.zIndex}" >
+              <div [ngClass]="card.flip ? 'flip-card-inner flipped' : 'flip-card-inner'">
+                <div class="flip-card-front" (dblclick)="flip(card)">
+                  <img src="assets/imgs/card-back.jpg" alt="card">
+                </div>
+                <div class="flip-card-back shadowFar" [ngClass]="(card.status == card.getStatic().ENABLED) ? '': 'shadowClose'" (dblclick)="flip(card)">
+
+                  <div class="btn trash" (click)="removeCard(card)"></div>
+                  <div class="btn pin-off" (click)="blockCard(card)"></div>
+
+                  <span *ngIf="card.flip">{{card.text}}
+
+                    <ol class="listOptions" type="a">
+                      <li *ngFor="let option of card.options">{{option}}</li>
+                    </ol>
+
+                  </span>
+
+
+
+                  <img src="assets/imgs/card-front.jpg" alt="card">
+
+                </div>
+              </div>
+            </div>
+
+          </ng-container>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+
+</div>
+

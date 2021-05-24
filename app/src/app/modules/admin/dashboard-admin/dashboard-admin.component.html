@@ -1,0 +1,85 @@
+
+
+<div id="wrapper">
+
+  <app-nav-left></app-nav-left>
+
+  <div id="page-wrapper" class="gray-bg">
+
+    <app-nav-header></app-nav-header>
+
+    <div class="wrapper wrapper-content animated fadeInRight">
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="text-left ">
+            <h1 class="mt-0">
+              Dashboard
+            </h1>
+          </div>
+        </div>
+
+
+          <div class="col-lg-3">
+            <div class="ibox ">
+
+              <div class="ibox-title">
+                <h5>Upload Excel</h5>
+              </div>
+
+              <div class="ibox-content">
+
+                <div class="custom-file">
+                  <input (change)="addFile($event)" type="file"  id="excel" name="excel" class="form-control" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+                  <label for="excel" class="custom-file-label">Choose file...</label>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+
+          <div class="col-lg-9 ">
+
+            <ng-container *ngFor="let item of list; let i = index">
+
+              <div class="ibox ">
+                <div class="ibox-title">
+                  <h5><h3>{{item.deck.text}}</h3></h5>
+                </div>
+                <div class="ibox-content">
+                    <table class="table table-hover" >
+                      <thead>
+                      <tr>
+                        <th width="40%">Text</th><th>Options</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr *ngFor="let card of item.cards">
+                        <td>{{card.text}}</td>
+                        <td>{{card.options}}</td>
+                      </tr>
+                      </tbody>
+                    </table>
+                </div>
+              </div>
+
+            </ng-container>
+
+
+
+          </div>
+
+      </div>
+    </div>
+    <div class="footer">
+      <div class="pull-right">
+
+      </div>
+      <div>
+        <strong>Copyright</strong> Gemplify Särl &copy; 2020
+      </div>
+    </div>
+
+  </div>
+</div>
